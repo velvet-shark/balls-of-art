@@ -25,5 +25,8 @@
       "**/backend",
       "**/backend/**"
     ]
+  },
+  "dependencies": {
+    "@fontsource/poppins": "^4.5.9"
   }
 }

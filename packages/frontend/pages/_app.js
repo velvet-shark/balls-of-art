@@ -1,18 +1,25 @@
-import * as React from 'react';
-import NextHead from 'next/head';
-import '../styles/globals.css';
+import * as React from "react";
+import NextHead from "next/head";
+import "../styles/globals.css";
 
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+
+const theme = extendTheme({
+  fonts: {
+    heading: `Poppins, 'Open Sans', sans-serif`,
+    body: `Poppins, 'Raleway', sans-serif`
+  }
+});
 
 // Imports
-import { chain, createClient, WagmiConfig, configureChains } from 'wagmi';
-import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { publicProvider } from 'wagmi/providers/public';
+import { chain, createClient, WagmiConfig, configureChains } from "wagmi";
+import { alchemyProvider } from "wagmi/providers/alchemy";
+import { publicProvider } from "wagmi/providers/public";
 
-import '@rainbow-me/rainbowkit/styles.css';
-import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import "@rainbow-me/rainbowkit/styles.css";
+import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 
-import { useIsMounted } from '../hooks';
+import { useIsMounted } from "../hooks";
 
 // Get environment variables
 const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_ID;
@@ -20,17 +27,17 @@ const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_ID;
 
 const hardhatChain = {
   id: 31337,
-  name: 'Hardhat',
+  name: "Hardhat",
   nativeCurrency: {
     decimals: 18,
-    name: 'Hardhat',
-    symbol: 'HARD',
+    name: "Hardhat",
+    symbol: "HARD"
   },
-  network: 'hardhat',
+  network: "hardhat",
   rpcUrls: {
-    default: 'http://127.0.0.1:8545',
+    default: "http://127.0.0.1:8545"
   },
-  testnet: true,
+  testnet: true
 };
 
 const { chains, provider } = configureChains(
@@ -39,14 +46,14 @@ const { chains, provider } = configureChains(
 );
 
 const { connectors } = getDefaultWallets({
-  appName: 'create-web3',
-  chains,
+  appName: "create-web3",
+  chains
 });
 
 const wagmiClient = createClient({
   autoConnect: true,
   connectors,
-  provider,
+  provider
 });
 
 const App = ({ Component, pageProps }) => {
@@ -59,7 +66,7 @@ const App = ({ Component, pageProps }) => {
         <NextHead>
           <title>create-web3</title>
         </NextHead>
-        <ChakraProvider>
+        <ChakraProvider theme={theme}>
           <Component {...pageProps} />
         </ChakraProvider>
       </RainbowKitProvider>

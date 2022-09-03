@@ -1,14 +1,14 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useContract, useProvider } from 'wagmi';
+import { useEffect, useState, useCallback } from "react";
+import { useContract, useProvider } from "wagmi";
 
-import contracts from '../../contracts/hardhat_contracts.json';
-import { NETWORK_ID } from '../../config';
+import contracts from "../../contracts/hardhat_contracts.json";
+import { NETWORK_ID } from "../../config";
 
 export const GetGreeter = () => {
   const chainId = Number(NETWORK_ID);
-  const [currentGreeter, setCurrentGreeter] = useState('');
+  const [currentGreeter, setCurrentGreeter] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const provider = useProvider();
 
@@ -19,14 +19,14 @@ export const GetGreeter = () => {
   const greeterContract = useContract({
     addressOrName: greeterAddress,
     contractInterface: greeterABI,
-    signerOrProvider: provider,
+    signerOrProvider: provider
   });
 
   const fetchData = useCallback(async () => {
     try {
       const greeter = await greeterContract.greet();
       setCurrentGreeter(greeter);
-      setError('');
+      setError("");
     } catch (error) {
       setError("Contract couldn't be fetched.  Please check your network.");
     }
@@ -48,9 +48,9 @@ export const GetGreeter = () => {
   }
 
   return (
-    <div style={{ margin: '20px' }}>
-      <span>current greeting : {currentGreeter}</span>
-      <button style={{ marginLeft: '20px' }} onClick={() => fetchData()}>
+    <div style={{ margin: "20px" }}>
+      <span>Current greeting : {currentGreeter}</span>
+      <button style={{ marginLeft: "20px" }} onClick={() => fetchData()}>
         refresh
       </button>
     </div>
