@@ -106,16 +106,12 @@ contract BallsOfArt is ERC721, Ownable {
             );
     }
 
-    // TODO review all randomBases and shift accordingly
+    // Generate SVG code for a single line
     function generateLineSvg(uint256 lineNumber, uint256 randomBase)
         public
         view
         returns (bytes memory)
     {
-        // // A base for all "random" values
-        // uint256 randomBase = uint256(
-        //     keccak256(abi.encodePacked(blockhash(block.number - 1)))
-        // );
         // Line SVG
         bytes memory lineSvg = "";
 
@@ -203,8 +199,42 @@ contract BallsOfArt is ERC721, Ownable {
             );
             lineSvg = bytes.concat(lineSvg, ballSvg(ball11));
         }
-        console.log("lineSvg: ", string(lineSvg));
+
         return lineSvg;
+    }
+
+    // Generate final SVG code for the NFT
+    function generateFinalSvg() public view returns (bytes memory) {
+        uint randomBase1 = uint(
+            keccak256(abi.encodePacked(block.difficulty, block.timestamp))
+        );
+        uint randomBase2 = uint(
+            keccak256(abi.encodePacked(block.timestamp, msg.sender))
+        );
+        uint randomBase3 = uint(
+            keccak256(abi.encodePacked(msg.sender, block.timestamp))
+        );
+
+        bytes memory backgroundCode = abi.encodePacked(
+            '<rect width="1250" height="1250" fill="',
+            backgroundColors[(randomBase1 % 7)],
+            '" />'
+        );
+
+        // SVG opening and closing tags, background color + 3 lines generated
+        bytes memory finalSvg = bytes.concat(
+            abi.encodePacked(
+                '<svg viewBox="0 0 1250 1250" xmlns="http://www.w3.org/2000/svg">',
+                backgroundCode,
+                generateLineSvg(1, randomBase1),
+                generateLineSvg(2, randomBase2),
+                generateLineSvg(3, randomBase3),
+                abi.encodePacked("</svg>")
+            )
+        );
+
+        console.log("Final Svg: ", string(finalSvg));
+        return finalSvg;
     }
 
     function drawBallSize(uint256 maxSize, uint256 randomBase)
@@ -220,9 +250,9 @@ contract BallsOfArt is ERC721, Ownable {
         // 2x: 32%
         // else: 1x
         if (maxSize == 3) {
-            if (r <= 16) {
+            if (r <= 20) {
                 return 3;
-            } else if (r <= 48) {
+            } else if (r <= 35) {
                 return 2;
             } else {
                 return 1;
