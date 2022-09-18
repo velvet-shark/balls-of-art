@@ -205,13 +205,13 @@ contract BallsOfArt is ERC721, Ownable {
 
     // Generate final SVG code for the NFT
     function generateFinalSvg() public view returns (bytes memory) {
-        uint randomBase1 = uint(
+        uint256 randomBase1 = uint(
             keccak256(abi.encodePacked(block.difficulty, block.timestamp))
         );
-        uint randomBase2 = uint(
+        uint256 randomBase2 = uint(
             keccak256(abi.encodePacked(block.timestamp, msg.sender))
         );
-        uint randomBase3 = uint(
+        uint256 randomBase3 = uint(
             keccak256(abi.encodePacked(msg.sender, block.timestamp))
         );
 
@@ -221,6 +221,9 @@ contract BallsOfArt is ERC721, Ownable {
             '" />'
         );
 
+        // Which line will contain the eyes
+        uint256 eyesLocation = (randomBase1 % 3) + 1;
+
         // SVG opening and closing tags, background color + 3 lines generated
         bytes memory finalSvg = bytes.concat(
             abi.encodePacked(
@@ -229,12 +232,42 @@ contract BallsOfArt is ERC721, Ownable {
                 generateLineSvg(1, randomBase1),
                 generateLineSvg(2, randomBase2),
                 generateLineSvg(3, randomBase3),
-                abi.encodePacked("</svg>")
+                drawEyes(eyesLocation),
+                "</svg>"
             )
         );
 
         console.log("Final Svg: ", string(finalSvg));
         return finalSvg;
+    }
+
+    function drawEyes(uint256 eyesLocation)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        // Bottom-right location by default
+        uint256 y1 = 930;
+        uint256 y2 = 980;
+
+        if (eyesLocation == 1) {
+            y1 = 280;
+            y2 = 330;
+        } else if (eyesLocation == 2) {
+            y1 = 605;
+            y2 = 655;
+        } // Location 3 skipped because it's set up as default already, and only changed if location is 1 or 2
+
+        return
+            bytes.concat(
+                abi.encodePacked(
+                    '<rect x="980" y="',
+                    uint2str(y1),
+                    '" width="30" height="30" fill="#ffffff" rx="15"><animate attributeType="XML" attributeName="fill" values="#ffffff00;#ffffff00;#ffffff00;#ffffff00;#ffffff00;#ffffff;#ffffff00;#ffffff00;#ffffff00;#ffffff00;" dur="10s" repeatCount="indefinite"/></rect><rect x="930" y="',
+                    uint2str(y2),
+                    '" width="30" height="30" fill="#ffffff" rx="15"><animate attributeType="XML" attributeName="fill" values="#ffffff00;#ffffff00;#ffffff00;#ffffff00;#ffffff00;#ffffff;#ffffff00;#ffffff00;#ffffff00;#ffffff00;" dur="10s" repeatCount="indefinite"/></rect>'
+                )
+            );
     }
 
     function drawBallSize(uint256 maxSize, uint256 randomBase)
