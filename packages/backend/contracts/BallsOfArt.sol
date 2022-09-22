@@ -6,6 +6,7 @@ pragma solidity 0.8.16;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Base64.sol";
 import "hardhat/console.sol";
 
 contract BallsOfArt is ERC721, Ownable {
@@ -66,9 +67,13 @@ contract BallsOfArt is ERC721, Ownable {
 
     uint256 public maxSupply = 111; // max number of tokens
     uint256 public mintedTokens = 0; // number of tokens minted
+    uint256 public mintPrice = 5000000000000000; // 0.005 ETH
+
+    // Mapping from token ID to owner address
+    mapping(uint256 => address) private owners;
 
     // Events
-    event BallCreated(uint256 indexed tokenId, string tokenURI);
+    event BallsCreated(uint256 indexed tokenId);
 
     constructor() ERC721("Balls of Art", "BART") {}
 
@@ -310,6 +315,57 @@ contract BallsOfArt is ERC721, Ownable {
                 return 1;
             }
         }
+    }
+
+    // Generate token URI
+    function tokenURI(uint tokenId)
+        public
+        view
+        override
+        returns (string memory)
+    {
+        require(owners[tokenId] == address(0));
+
+        return
+            string(
+                abi.encodePacked(
+                    "data:application/json;base64,",
+                    Base64.encode(
+                        bytes(
+                            string(
+                                abi.encodePacked(
+                                    '{"name": "Balls of Art #',
+                                    uint2str(tokenId),
+                                    '", "description": "Balls of Art are an assortment of 111 fully on-chain, randomly generated, happy art balls", "attributes": "", "image":"data:image/svg+xml;base64,',
+                                    Base64.encode(generateFinalSvg()),
+                                    '"}'
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+    }
+
+    // Mint new Balls of Art
+    function mintBallsOfArt(uint256 tokenId) public payable {
+        // Make sure the token ID is not already minted
+        require(owners[tokenId] == address(0), "Token already minted");
+        // Make sure the amount of ETH is equal or larger than the minimum mint price
+        require(msg.value >= mintPrice, "Not enough ETH sent");
+
+        // bytes memory finalSvg = generateFinalSvg();
+
+        // Mint token
+        _mint(msg.sender, tokenId);
+
+        // Set owner for the given token ID
+        owners[tokenId] = msg.sender;
+
+        // Increase minted tokens counter
+        ++mintedTokens;
+
+        emit BallsCreated(tokenId);
     }
 
     // From: https://stackoverflow.com/a/65707309/11969592
