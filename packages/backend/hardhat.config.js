@@ -11,7 +11,21 @@ const defaultNetwork = "localhost";
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.8.10",
+  solidity: {
+    version: "0.8.16",
+    settings: {
+      metadata: {
+        // Not including the metadata hash
+        // https://github.com/paulrberg/solidity-template/issues/31
+        bytecodeHash: "none"
+      },
+      optimizer: {
+        enabled: true,
+        runs: 800
+      },
+      viaIR: true
+    }
+  },
 
   defaultNetwork,
 
@@ -45,6 +59,11 @@ module.exports = {
     tokenOwner: 1,
     etherscan: {
       apiKey: process.env.ETHERSCAN_API_KEY
+    }
+  },
+  etherscan: {
+    apiKey: {
+      goerli: process.env.ETHERSCAN_API_KEY
     }
   }
 };
